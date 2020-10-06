@@ -60,25 +60,29 @@ if (NODE_ENV !== 'production') {
     }));
 }
 
-app.get('/bookmarks', (req, res) => {
-    res
-        .json(bookmarks);
-});
+app.get('/bookmarks', (req, res, next) => {
+    const knexInstance = req.app.get('db')
+    BookmarksService.getAllBookmarks(knexInstance)
+        .then(articles => {
+            res.json(articles)
+        })
+        .catch(next)
+})
 
-app.get('/bookmarks/:id', (req, res) => {
-    const { id } = req.params;
-    const bookmark = bookmarks.find(b => b.id == id);
-
-    // make sure we found a bookmark
-    if (!bookmark) {
-        logger.error(`bookmark with id ${id} not found.`);
-        return res
-            .status(404)
-            .send('bookmark Not Found');
-    }
-
-    res.json(bookmark);
-});
+app.get('/bookmarks/:bookmark_id', (req, res, next) => {
+    res.json({ 'requested_id': req.params.bookmark_id, this: 'should fail' })
+    const knexInstance = req.app.get('db')
+    BookmarksService.getById(knexInstance, req.params.bookmark_id)
+        .then(bookmark => {
+            if (!bookmark) {
+                return res.status(404).json({
+                    error: { message: `Bookmark doesn't exist` }
+                })
+            }
+            res.json(bookmark)
+        })
+        .catch(next)
+})
 
 app.post('/bookmarks', (req, res) => {
     const { header, bookmarkIds = [] } = req.body;
