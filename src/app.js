@@ -12,9 +12,14 @@ const morganOption = (NODE_ENV === 'production')
     ? 'tiny'
     : 'common';
 
+const bookmarksRouter = require('./bookmarks/bookmarks-router')
+
 app.use(morgan(morganOption))
 app.use(helmet())
+
+
 app.use(express.json());
+app.use('/bookmarks', bookmarksRouter)
 
 app.use(function validateBearerToken(req, res, next) {
     const apiToken = process.env.API_TOKEN
@@ -28,22 +33,6 @@ app.use(function validateBearerToken(req, res, next) {
     next()
 })
 
-const bookmarks = [
-    {
-        id: 1,
-        title: 'Poetry Foundation',
-        url: 'https://www.poetryfoundation.org',
-        description: 'Publisher of Poetry magazine',
-        rating: 5
-    },
-    {
-        id: 2,
-        title: 'Academy of American Poets',
-        url: 'https://poets.org',
-        description: 'Tons of poems',
-        rating: 5
-    }
-];
 
 // set up winston
 const logger = winston.createLogger({
@@ -60,29 +49,10 @@ if (NODE_ENV !== 'production') {
     }));
 }
 
-app.get('/bookmarks', (req, res, next) => {
-    const knexInstance = req.app.get('db')
-    BookmarksService.getAllBookmarks(knexInstance)
-        .then(articles => {
-            res.json(articles)
-        })
-        .catch(next)
-})
 
-app.get('/bookmarks/:bookmark_id', (req, res, next) => {
-    res.json({ 'requested_id': req.params.bookmark_id, this: 'should fail' })
-    const knexInstance = req.app.get('db')
-    BookmarksService.getById(knexInstance, req.params.bookmark_id)
-        .then(bookmark => {
-            if (!bookmark) {
-                return res.status(404).json({
-                    error: { message: `Bookmark doesn't exist` }
-                })
-            }
-            res.json(bookmark)
-        })
-        .catch(next)
-})
+
+
+
 
 app.post('/bookmarks', (req, res) => {
     const { header, bookmarkIds = [] } = req.body;
