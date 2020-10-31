@@ -15,8 +15,8 @@ bookmarksRouter
       .catch(next);
   })
   .post(jsonParser, (req, res, next) => {
-    const { title, content, style } = req.body;
-    const newArticle = { title, content, style };
+    const { title, description, style } = req.body;
+    const newArticle = { title, description, style };
     BookmarksService.insertBookmark(req.app.get("db"), newArticle)
       .then((bookmark) => {
         res
@@ -54,8 +54,8 @@ bookmarksRouter
         res.json({
           id: bookmark.id,
           title: xss(bookmark.title), // sanitize title
-          content: xss(bookmark.url), // sanitize url
-          content: xss(article.description), // sanitize description
+          url: xss(bookmark.url), // sanitize url
+          description: xss(article.description), // sanitize description
           date_published: article.date_published,
         });
       })
