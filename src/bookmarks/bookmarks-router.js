@@ -15,9 +15,9 @@ bookmarksRouter
       .catch(next);
   })
   .post(jsonParser, (req, res, next) => {
-    const { title, description, style } = req.body;
-    const newArticle = { title, description, style };
-    BookmarksService.insertBookmark(req.app.get("db"), newArticle)
+    const { title, description, url } = req.body;
+    const newBookmark = { title, description, url };
+    BookmarksService.insertBookmark(req.app.get("db"), newBookmark)
       .then((bookmark) => {
         res
           .status(201)
